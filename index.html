@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 21st Birthday, Bestie! 💜</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- GSAP for Cinematic Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-deep: #080310;
+            --bg-card: rgba(25, 15, 45, 0.65);
+            --border-glass: rgba(177, 156, 217, 0.18);
+            --purple-glow: #b19cd9;
+            --accent-pink: #ff758c;
+            --text-main: #f4f0ff;
+            --text-muted: #d0c2e8;
+            --font-heading: 'Cinzel', serif;
+            --font-sub: 'Playfair Display', serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+        }
+
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(177, 156, 217, 0.08);
+            padding: 2.5rem;
+        }
+
+        .glass-btn {
+            background: rgba(177, 156, 217, 0.1);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-family: var(--font-body);
+            font-weight: 500;
+        }
+
+        .glass-btn:hover {
+            background: rgba(177, 156, 217, 0.25);
+            box-shadow: 0 0 20px rgba(177, 156, 217, 0.3);
+        }
+
+        .luxury-btn {
+            position: relative;
+            background: linear-gradient(135deg, #b19cd9, #7952b3);
+            color: #ffffff;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-family: var(--font-heading);
+            border-radius: 50px;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(121, 82, 179, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .luxury-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(177, 156, 217, 0.6);
+        }
+
+        .luxury-btn-small {
+            background: linear-gradient(135deg, #b19cd9, #7952b3);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.8rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            box-shadow: 0 5px 20px rgba(121, 82, 179, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .luxury-btn-small:hover { transform: scale(1.05); }
+
+        .glow-text {
+            font-family: var(--font-heading);
+            text-shadow: 0 0 20px rgba(177, 156, 217, 0.5), 0 0 40px rgba(177, 156, 217, 0.2);
+        }
+
+        .mega-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.2;
+        }
+
+        .audio-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .site-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 2rem;
+        }
+
+        .site-section.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        #section-intro { background: radial-gradient(circle at center, #1b0d30 0%, #080310 100%); }
+        #galaxy-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        .intro-content { position: relative; z-index: 2; text-align: center; max-width: 600px; width: 100%; }
+        .intro-title { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; }
+        .intro-subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; font-family: var(--font-sub); font-style: italic; }
+
+        #section-tree { background: linear-gradient(to bottom, #0e071b, #05020a); }
+        .tree-container { display: flex; flex-direction: column; align-items: center; max-width: 500px; width: 100%; position: relative; z-index: 2; }
+        .magical-tree-svg { width: 280px; height: 320px; filter: drop-shadow(0 0 15px rgba(177, 156, 217, 0.3)); }
+        .fireflies-container { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .firefly { position: absolute; width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 8px #fff, 0 0 15px var(--purple-glow); animation: floatFirefly 4s infinite ease-in-out; }
+        @keyframes floatFirefly {
+            0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+            50% { transform: translate(15px, -20px); opacity: 1; }
+        }
+        .quote-box { margin-top: 1.5rem; text-align: center; width: 100%; }
+        .quote-text { font-family: var(--font-sub); font-style: italic; font-size: 1.15rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+        #section-countdown { background: var(--bg-deep); }
+        .countdown-display-wrapper { text-align: center; }
+        .countdown-num { font-family: var(--font-heading); font-size: clamp(8rem, 20vw, 15rem); color: var(--purple-glow); text-shadow: 0 0 50px rgba(177, 156, 217, 0.6); }
+
+        #section-quiz { background: radial-gradient(circle at center, #150a28 0%, #080310 100%); }
+        .quiz-container { max-width: 650px; width: 100%; }
+        .quiz-header { margin-bottom: 1.5rem; }
+        .quiz-header h2 { font-size: 1.5rem; margin-bottom: 1rem; font-family: var(--font-heading); }
+        .quiz-progress-bar { width: 100%; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: var(--purple-glow); transition: width 0.4s ease; }
+        .quiz-question-text { font-size: 1.2rem; margin-bottom: 1.5rem; font-weight: 500; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+        .quiz-option-btn { background: rgba(177, 156, 217, 0.08); border: 1px solid var(--border-glass); padding: 1rem 1.25rem; border-radius: 14px; color: var(--text-main); text-align: left; cursor: pointer; font-size: 1rem; font-family: var(--font-body); transition: all 0.2s ease; }
+        .quiz-option-btn:hover { background: rgba(177, 156, 217, 0.2); border-color: var(--purple-glow); }
+        .quiz-option-btn.correct { background: rgba(46, 204, 113, 0.25); border-color: #2ecc71; }
+        .quiz-option-btn.incorrect { background: rgba(231, 76, 60, 0.25); border-color: #e74c3c; }
+
+        #section-score { background: radial-gradient(circle at center, #1a0b2e 0%, #080310 100%); }
+        .score-card { max-width: 500px; width: 100%; }
+        .mascot-container { width: 100px; height: 100px; margin: 0 auto 1.5rem auto; background: rgba(177, 156, 217, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--border-glass); }
+        .mascot-pulse { width: 70px; height: 70px; object-fit: contain; animation: pulseMascot 2s infinite ease-in-out; }
+        @keyframes pulseMascot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .score-subtext { color: var(--text-muted); font-family: var(--font-sub); font-size: 1.2rem; margin-top: 0.5rem; }
+
+        #section-cake { background: radial-gradient(circle at center, #140824 0%, #080310 100%); }
+        .cake-wrapper { max-width: 450px; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .cake-scene { margin: 2rem 0; position: relative; }
+        .luxury-cake { display: flex; flex-direction: column; align-items: center; position: relative; }
+        .cake-tier { background: linear-gradient(135deg, #2d1b4e, #4a2b75); border: 2px solid var(--border-glass); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .tier-top { width: 120px; height: 50px; }
+        .tier-middle { width: 170px; height: 60px; }
+        .tier-bottom { width: 220px; height: 70px; }
+        .candle { width: 16px; height: 50px; background: linear-gradient(to right, #f4f0ff, #b19cd9); position: relative; border-radius: 4px; cursor: pointer; margin-bottom: 5px; }
+        .flame { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); width: 14px; height: 24px; background: linear-gradient(to top, #ff758c, #ffeb3b); border-radius: 50% 50% 20% 20%; box-shadow: 0 0 15px #ff758c, 0 0 25px #ffeb3b; animation: flickerFlame 0.8s infinite alternate ease-in-out; }
+        @keyframes flickerFlame {
+            0% { transform: translateX(-50%) scale(1) rotate(-2deg); }
+            100% { transform: translateX(-50%) scale(1.1) rotate(2deg); }
+        }
+        .smoke { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: rgba(255,255,255,0.6); border-radius: 50%; filter: blur(4px); opacity: 0; }
+        .instruction-hint { color: var(--text-muted); font-size: 0.95rem; font-style: italic; font-family: var(--font-sub); }
+
+        #section-wishes { background: radial-gradient(circle at center, #1b0d30 0%, #080310 100%); }
+        .wishes-universe { max-width: 700px; width: 100%; }
+        .floating-wishes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; max-height: 55vh; overflow-y: auto; padding-right: 5px; }
+        .wish-card { background: rgba(177, 156, 217, 0.08); border: 1px solid var(--border-glass); padding: 1.25rem; border-radius: 16px; backdrop-filter: blur(10px); font-family: var(--font-sub); font-size: 1.05rem; line-height: 1.5; color: var(--text-main); box-shadow: 0 8px 20px rgba(0,0,0,0.3); animation: floatWish 4s infinite ease-in-out alternate; }
+        .wish-card:nth-child(even) { animation-delay: 2s; }
+        @keyframes floatWish {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-8px); }
+        }
+
+        #section-memories { background: radial-gradient(circle at center, #160928 0%, #080310 100%); }
+        .gallery-container { max-width: 600px; width: 100%; }
+        .carousel-viewport { width: 100%; height: 340px; margin: 1.5rem 0; overflow: hidden; position: relative; border-radius: 16px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.4); }
+        .carousel-track { display: flex; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .carousel-slide { min-width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .carousel-slide img, .carousel-slide video { width: 100%; height: 260px; object-fit: contain; background:#0c0614; }
+        .slide-caption { width: 100%; padding: 0.8rem; background: rgba(10, 5, 20, 0.85); font-family: var(--font-sub); font-size: 0.95rem; text-align: center; color: var(--text-muted); }
+        .carousel-controls { display: flex; justify-content: space-between; align-items: center; }
+        .memory-counter-text { font-family: var(--font-heading); font-size: 0.9rem; color: var(--text-muted); }
+
+        #section-envelope { background: radial-gradient(circle at center, #130722 0%, #05020a 100%); }
+        .envelope-scene { max-width: 400px; width: 100%; }
+        .envelope-wrapper { margin: 2.5rem auto; cursor: pointer; display: inline-block; transition: transform 0.3s ease; }
+        .envelope-wrapper:hover { transform: scale(1.05); }
+        .envelope { width: 260px; height: 180px; background: #4a2b75; position: relative; border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--border-glass); }
+        .envelope-flap { position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 130px solid transparent; border-right: 130px solid transparent; border-top: 100px solid #5d3693; transform-origin: top; transition: transform 0.4s ease; }
+        .envelope.open .envelope-flap { transform: rotateX(180deg); z-index: 10; }
+        .envelope-pocket { position: absolute; bottom: 0; left: 0; width: 0; height: 0; border-left: 130px solid #422468; border-right: 130px solid #422468; border-bottom: 100px solid #381d5a; border-radius: 0 0 8px 8px; z-index: 5; }
+        .seal-badge { position: absolute; top: 75px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: #b19cd9; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 12; font-size: 1.1rem; }
+
+        #section-letter { background: radial-gradient(circle at center, #1b0d30 0%, #080310 100%); }
+        .letter-container { max-width: 650px; width: 100%; }
+        .letter-title { margin-bottom: 1rem; text-align: center; }
+        .letter-paper { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); padding: 1.8rem; border-radius: 16px; min-height: 220px; max-height: 40vh; overflow-y: auto; }
+        .typed-message-content { font-family: var(--font-sub); font-size: 1.1rem; line-height: 1.8; color: var(--text-main); white-space: pre-wrap; }
+
+        /* PHOTO FRAME BIRTHDAY GALLERY */
+        #section-video {
+            background: #f34f86 url('assets/memories/photo-wall-bg.png') center/cover no-repeat;
+            position: relative;
+            overflow: hidden;
+        }
+        #section-video::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,105,155,.10), rgba(111,17,65,.18));
+            pointer-events: none;
+        }
+        .photo-wall {
+            position: relative;
+            z-index: 2;
+            width: min(1100px, 94vw);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3.8rem 1rem 1.2rem;
+        }
+        .photo-wall-heading {
+            color: #fff;
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 4.4rem);
+            text-align: center;
+            margin: 0 0 1.1rem;
+            text-shadow: 0 4px 20px rgba(111,0,50,.5), 0 0 28px rgba(255,255,255,.35);
+            animation: wallHeadingFloat 3.2s ease-in-out infinite;
+        }
+        @keyframes wallHeadingFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        .photo-wall-grid {
+            width: min(1080px, 94vw);
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-rows: repeat(2, minmax(0, 1fr));
+            gap: 1.35rem 2rem;
+            position: relative;
+        }
+        .photo-wall-slot {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.45 / 1;
+            perspective: 900px;
+        }
+        .photo-frame {
+            position: absolute;
+            inset: 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: linear-gradient(145deg, #fffdfd, #ffd5e4 52%, #f7a8c4);
+            border: 3px solid rgba(255,255,255,.88);
+            box-shadow: 0 18px 35px rgba(104,0,46,.28), 0 0 24px rgba(255,255,255,.24);
+            transform: rotate(var(--tilt));
+            animation: frameFloat 4.5s ease-in-out infinite;
+            overflow: visible;
+        }
+        .photo-wall-slot:nth-child(2) .photo-frame { animation-delay: .45s; }
+        .photo-wall-slot:nth-child(3) .photo-frame { animation-delay: .9s; }
+        .photo-wall-slot:nth-child(4) .photo-frame { animation-delay: 1.35s; }
+        .photo-wall-slot:nth-child(5) .photo-frame { animation-delay: 1.8s; }
+        .photo-wall-slot:nth-child(6) .photo-frame { animation-delay: 2.25s; }
+        @keyframes frameFloat {
+            0%,100% { transform: rotate(var(--tilt)) translateY(0); }
+            50% { transform: rotate(calc(var(--tilt) * -1)) translateY(-8px); }
+        }
+        .photo-frame-inner {
+            width: 100%; height: 100%; border-radius: 3px; overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,205,225,.9));
+            display:flex; align-items:center; justify-content:center; position:relative;
+        }
+        .photo-frame img {
+            width:100%; height:100%; object-fit:contain; display:block;
+            transition: transform .8s ease, filter .8s ease;
+        }
+        .photo-frame:hover img { transform:scale(1.06); filter:saturate(1.08) brightness(1.04); }
+        .photo-placeholder {
+            position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+            color:#9c315d; text-align:center; padding:1rem; background:linear-gradient(135deg,#fff9fc,#ffd9e8);
+        }
+        .photo-placeholder strong { font-family:var(--font-heading); font-size:1.15rem; }
+        .photo-placeholder span { font-size:.78rem; margin-top:.35rem; opacity:.8; }
+        .photo-frame.has-photo .photo-placeholder { display:none; }
+        .frame-sparkle { position:absolute; width:7px; height:7px; border-radius:50%; background:#fff; box-shadow:0 0 12px #fff,0 0 24px #ff8db6; animation:sparklePulse 1.8s infinite ease-in-out; z-index:5; }
+        .frame-sparkle.s1 { top:-14px; left:18%; }
+        .frame-sparkle.s2 { bottom:-12px; right:14%; animation-delay:.6s; }
+        @keyframes sparklePulse { 0%,100%{opacity:.25;transform:scale(.7)} 50%{opacity:1;transform:scale(1.35)} }
+        .frame-string-horizontal, .frame-string-vertical { position:absolute; z-index:1; pointer-events:none; }
+        .frame-string-horizontal { height:22px; width:9rem; left:calc(50% + 50px); top:50%; background:repeating-radial-gradient(ellipse at center, transparent 0 3px, rgba(255,255,255,.9) 3.5px 5px, transparent 5.5px 9px); background-size:18px 22px; opacity:.78; transform:rotate(90deg); }
+        .frame-string-vertical { width:24px; height:2.7rem; left:calc(50% - 12px); top:100%; background:repeating-radial-gradient(ellipse at center, transparent 0 3px, rgba(255,255,255,.9) 3.5px 5px, transparent 5.5px 9px); background-size:24px 18px; opacity:.8; }
+        .photo-wall-note { margin-top:2rem; color:#fff; font-family:var(--font-sub); font-size:1rem; text-align:center; text-shadow:0 2px 10px rgba(80,0,40,.4); }
+        .photo-wall-next { margin-top:1.3rem; }
+        @media (max-width: 760px) {
+            .photo-wall { min-height:100vh; padding-top:4.5rem; }
+            .photo-wall-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; gap:1.2rem 1rem; width:96vw; }
+            .photo-frame { padding:8px; }
+            .frame-string-horizontal { width:2rem; left:calc(50% + 40px); }
+            .frame-string-vertical { height:1.7rem; }
+        }
+        @media (max-width: 520px) {
+            .photo-wall-grid { grid-template-columns:1fr 1fr; grid-template-rows:auto; gap:1rem .7rem; }
+            .photo-wall-heading { margin-bottom:1.4rem; }
+            .photo-wall { padding-left:.5rem; padding-right:.5rem; }
+            .photo-frame { padding:6px; border-width:2px; }
+            .photo-placeholder strong { font-size:.85rem; }
+            .photo-placeholder span { font-size:.62rem; }
+            .frame-string-horizontal { display:none; }
+        }
+
+        #section-ending { background: #05020a; }
+        .ending-wrapper { max-width: 600px; width: 100%; }
+        .massive-heart-container { display: flex; justify-content: center; align-items: center; }
+        .pulsing-glowing-heart { width: 80px; height: 80px; background: #ff758c; position: relative; transform: rotate(-45deg); box-shadow: 0 0 40px #ff758c, 0 0 80px rgba(177, 156, 217, 0.5); animation: pulseHeart 1.5s infinite ease-in-out; }
+        .pulsing-glowing-heart::before, .pulsing-glowing-heart::after { content: ''; width: 80px; height: 80px; background: #ff758c; border-radius: 50%; position: absolute; }
+        .pulsing-glowing-heart::before { top: -40px; left: 0; }
+        .pulsing-glowing-heart::after { top: 0; left: 40px; }
+        @keyframes pulseHeart {
+            0%, 100% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.15); }
+        }
+        .final-subtext { font-family: var(--font-sub); font-style: italic; font-size: 1.2rem; color: var(--text-muted); }
+
+        /* Birthday fireworks animation */
+        .birthday-animation {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #4a0b5e 0%, #1b062b 48%, #05020a 100%);
+            z-index: 30;
+        }
+        #birthday-stars, #birthday-fireworks {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #birthday-stars { z-index: 1; }
+        #birthday-fireworks { z-index: 2; }
+        #birthday-hearts { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+        .birthday-title-wrap { position: relative; z-index: 5; text-align: center; padding: 20px; }
+        #birthday-title {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.7rem, 7vw, 6.8rem);
+            line-height: 1.1;
+            color: #fff;
+            opacity: 0;
+            letter-spacing: 1px;
+            text-shadow: 0 0 12px rgba(255,255,255,.9), 0 0 35px rgba(255,117,140,.7), 0 0 75px rgba(177,156,217,.7);
+        }
+        .birthday-heart { color: #ff758c; display: inline-block; animation: birthdayHeartPulse 1.3s infinite ease-in-out; text-shadow: 0 0 20px #ff758c; }
+        @keyframes birthdayHeartPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.22)} }
+        .birthday-float-heart { position:absolute; font-size:24px; opacity:0; filter:drop-shadow(0 0 10px rgba(255,117,140,.8)); }
+
+        /* Special quiz */
+        .special-quiz { text-align:center; position:relative; }
+        .special-quiz-sparkle { font-size:1.5rem; color:var(--purple-glow); animation: sparklePulse 1.5s infinite ease-in-out; }
+        @keyframes sparklePulse { 0%,100%{transform:scale(1);opacity:.65} 50%{transform:scale(1.35);opacity:1} }
+        .special-quiz-title { margin: .35rem 0 1rem; font-size:clamp(1.8rem,4vw,2.8rem); }
+        .special-quiz-question { font-family:var(--font-sub); font-size:clamp(1.25rem,3vw,1.65rem); margin-bottom:1.8rem; color:var(--text-main); }
+        .special-quiz-options { display:flex; justify-content:center; gap:16px; position:relative; min-height:58px; }
+        .special-option { min-width:92px; padding:.62rem 1.15rem; border-radius:999px; border:1px solid var(--border-glass); color:#fff; font-family:var(--font-heading); font-weight:700; cursor:pointer; transition:transform .25s ease, box-shadow .25s ease; }
+        .yes-option { background:linear-gradient(135deg,#b19cd9,#7952b3); box-shadow:0 10px 30px rgba(121,82,179,.4); }
+        .yes-option:hover { transform:translateY(-3px) scale(1.04); box-shadow:0 14px 35px rgba(177,156,217,.55); }
+        .no-option { background:rgba(255,117,140,.08); }
+        .special-reveal { text-align:center; width:100%; }
+        .reveal-kicker { font-family:var(--font-heading); font-size:clamp(1.6rem,4vw,2.5rem); color:#fff; text-shadow:0 0 18px rgba(177,156,217,.7); margin-bottom:1rem; }
+        .reveal-image-wrap { width:min(330px,80vw); margin:0 auto; border-radius:24px; overflow:hidden; border:1px solid rgba(255,255,255,.18); box-shadow:0 20px 60px rgba(0,0,0,.55),0 0 35px rgba(177,156,217,.28); transform:scale(.85); opacity:1; }
+        .reveal-image { display:block; width:100%; height:auto; }
+        .reveal-title { margin-top:1rem; font-size:clamp(1.7rem,4vw,2.7rem); }
+
+        /* More realistic luxury cake */
+        .cake-scene { margin:2rem 0; position:relative; padding-top:22px; }
+        .luxury-cake { display:flex; flex-direction:column; align-items:center; position:relative; filter:drop-shadow(0 18px 28px rgba(0,0,0,.45)); }
+        .cake-tier { position:relative; overflow:visible; border:2px solid rgba(255,255,255,.18); box-shadow:inset 0 8px 15px rgba(255,255,255,.16), inset 0 -12px 20px rgba(65,22,85,.3), 0 8px 18px rgba(0,0,0,.35); }
+        .tier-top { width:125px; height:58px; border-radius:50% 50% 12px 12px; background:linear-gradient(180deg,#f7d8f5 0%,#e6a8d8 38%,#9b5fae 100%); }
+        .tier-middle { width:178px; height:65px; border-radius:18px 18px 14px 14px; background:linear-gradient(180deg,#ffd6e5 0%,#e99abf 42%,#9c4f88 100%); margin-top:-5px; }
+        .tier-bottom { width:230px; height:76px; border-radius:22px 22px 16px 16px; background:linear-gradient(180deg,#ead7ff 0%,#b38be0 45%,#68409b 100%); margin-top:-5px; }
+        .cake-tier::before { content:'✦  ✦  ✦'; position:absolute; left:0; right:0; top:18px; text-align:center; color:rgba(255,255,255,.88); font-size:13px; letter-spacing:10px; text-shadow:0 0 8px rgba(255,255,255,.7); }
+        .cake-tier::after { content:''; position:absolute; left:10%; right:10%; top:-5px; height:14px; border-radius:50%; background:rgba(255,255,255,.38); filter:blur(2px); }
+        .candle { width:18px; height:52px; background:repeating-linear-gradient(135deg,#fff 0 7px,#d8b4ff 7px 14px); border:1px solid rgba(255,255,255,.45); position:relative; border-radius:6px; cursor:pointer; margin-bottom:4px; z-index:5; box-shadow:0 3px 8px rgba(0,0,0,.25); }
+        .flame { position:absolute; top:-25px; left:50%; transform:translateX(-50%); width:16px; height:27px; background:radial-gradient(circle at 50% 75%,#fff 0 18%,#ffe45e 19% 45%,#ff758c 46% 75%,transparent 76%); border-radius:50% 50% 45% 45%; box-shadow:0 0 15px #ff758c,0 0 28px #ffe45e; animation:flickerFlame .75s infinite alternate ease-in-out; }
+        .cake-wrapper { position:relative; overflow:hidden; }
+        .cake-wrapper::before { content:'✦  ✧  ✦  ✧  ✦'; position:absolute; top:12px; left:0; right:0; color:rgba(255,255,255,.35); font-size:14px; letter-spacing:12px; animation: cakeSparkle 2s infinite ease-in-out; }
+        @keyframes cakeSparkle { 0%,100%{opacity:.25;transform:translateY(0)} 50%{opacity:.8;transform:translateY(-3px)} }
+
+        /* ===== Refined interaction + later journey ===== */
+        .special-quiz-options { min-height: 110px; }
+        .special-option { user-select: none; -webkit-user-select: none; touch-action: none; }
+        #special-no { position: relative; z-index: 2; min-width: 88px; width: 88px; height: 44px; padding: .55rem .9rem; display:inline-flex; align-items:center; justify-content:center; }
+        .special-quiz-hint { margin-top: .9rem; color: var(--text-muted); font-family: var(--font-sub); font-size: .95rem; }
+
+        .memory-gallery-card { max-width: 760px; }
+        .section-kicker { text-align:center; letter-spacing:3px; font-size:.72rem; color:#d8c9ff; margin-bottom:.6rem; opacity:.8; }
+        .memory-subtitle, .video-subtitle, .letter-intro { text-align:center; color:var(--text-muted); font-family:var(--font-sub); margin:.6rem auto 0; }
+        .memory-frame { height: 390px; box-shadow: inset 0 0 45px rgba(177,156,217,.08), 0 20px 50px rgba(0,0,0,.35); }
+        .carousel-slide { padding: 1rem; }
+        .carousel-slide img, .carousel-slide video { width:100%; height:300px; border-radius:18px; object-fit:contain; background:#0c0614; border:1px solid rgba(255,255,255,.08); box-shadow:0 15px 35px rgba(0,0,0,.35); }
+        .media-placeholder { width:100%; height:300px; border-radius:18px; border:1px dashed rgba(177,156,217,.35); background:radial-gradient(circle at 50% 30%, rgba(177,156,217,.16), rgba(8,3,16,.9)); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); text-align:center; padding:1.5rem; }
+        .media-placeholder .placeholder-icon { font-size:2.8rem; margin-bottom:.6rem; filter:drop-shadow(0 0 12px rgba(177,156,217,.55)); }
+        .media-placeholder strong { color:#f4f0ff; }
+        .slide-caption { border-radius:0 0 14px 14px; }
+
+        .animated-letter-card { max-width:720px; }
+        .letter-sparkle { text-align:center; color:#d9caff; letter-spacing:12px; animation:sparklePulse 1.8s infinite ease-in-out; }
+        .envelope-stage { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:360px; }
+        .envelope { position:relative; width:min(430px,82vw); height:270px; margin:1.2rem auto 1.4rem; filter:drop-shadow(0 22px 35px rgba(0,0,0,.45)); }
+        .envelope-body { position:absolute; inset:18% 0 0; background:linear-gradient(145deg,#f9d9ea,#d7a6cf 55%,#9b6ab0); border:1px solid rgba(255,255,255,.35); border-radius:12px; overflow:hidden; box-shadow:inset 0 0 30px rgba(255,255,255,.2),0 0 35px rgba(177,156,217,.3); }
+        .envelope-body::before,.envelope-body::after { content:""; position:absolute; bottom:0; width:55%; height:72%; background:linear-gradient(145deg,rgba(255,255,255,.25),rgba(150,87,145,.2)); }
+        .envelope-body::before { left:0; clip-path:polygon(0 0,100% 100%,0 100%); }
+        .envelope-body::after { right:0; clip-path:polygon(100% 0,100% 100%,0 100%); }
+        .envelope-flap { position:absolute; left:0; top:0; width:100%; height:58%; z-index:3; background:linear-gradient(160deg,#fce6f3,#d7a2cf 65%,#a96caf); clip-path:polygon(0 0,100% 0,50% 100%); border:1px solid rgba(255,255,255,.28); transform-origin:top center; transition:transform .9s cubic-bezier(.2,.8,.2,1); box-shadow:0 8px 22px rgba(0,0,0,.2); }
+        .envelope-seal { position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); z-index:5; width:58px; height:58px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 35% 30%,#fff1f8,#ff759c 45%,#b62961 100%); color:white; font-size:1.35rem; box-shadow:0 0 20px rgba(255,117,156,.75),0 0 50px rgba(177,156,217,.4); animation:sealPulse 1.6s infinite; }
+        @keyframes sealPulse { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.08)} }
+        .envelope.open .envelope-flap { transform:rotateX(180deg); }
+        .open-letter-btn { margin-top:.3rem; }
+        .letter-reveal { display:none; }
+        .beautiful-letter-paper { position:relative; overflow:hidden; background:linear-gradient(145deg,rgba(255,255,255,.09),rgba(177,156,217,.05)); border-color:rgba(255,255,255,.16); box-shadow:inset 0 0 45px rgba(255,255,255,.03), 0 20px 60px rgba(0,0,0,.35); }
+        .paper-glow { position:absolute; inset:-30%; background:radial-gradient(circle,rgba(255,180,220,.08),transparent 55%); animation:paperGlow 5s infinite ease-in-out; pointer-events:none; }
+        @keyframes paperGlow { 0%,100%{transform:scale(.9);opacity:.4} 50%{transform:scale(1.1);opacity:1} }
+        .letter-signature { margin-top:1.4rem; color:#d8c9ff; font-family:var(--font-sub); font-style:italic; text-align:right; position:relative; z-index:1; }
+        .letter-signature span { color:#fff; font-style:normal; }
+        .typed-message-content { position:relative; z-index:1; }
+
+        .birthday-video-card { max-width:800px; width:100%; text-align:center; }
+        .birthday-video-frame { position:relative; width:100%; min-height:390px; margin:1.5rem 0 .5rem; border-radius:22px; overflow:hidden; border:1px solid rgba(177,156,217,.2); background:#06020b; box-shadow:0 25px 70px rgba(0,0,0,.55),0 0 45px rgba(177,156,217,.12); }
+        .birthday-video-frame video { width:100%; height:390px; object-fit:cover; display:block; position:relative; z-index:2; opacity:0; transition:opacity .5s ease; }
+        .birthday-video-frame.has-video video { opacity:1; }
+        .birthday-video-frame video[src] { color:#fff; }
+        .video-placeholder { position:absolute; inset:0; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; background:radial-gradient(circle at center,rgba(177,156,217,.14),rgba(5,2,10,.96)); color:var(--text-muted); }
+        .video-placeholder .placeholder-icon { font-size:3.4rem; margin-bottom:.8rem; animation:videoFloat 2.5s infinite ease-in-out; }
+        @keyframes videoFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .video-placeholder h3 { color:#fff; font-family:var(--font-heading); margin-bottom:.4rem; }
+        .video-placeholder p { max-width:560px; line-height:1.6; }
+        .birthday-video-frame.has-video .video-placeholder { display:none; }
+
+        #section-ending { background:radial-gradient(circle at center,#190a2b 0%,#05020a 75%); }
+        .thank-you-orbit { display:flex; justify-content:center; gap:1.4rem; color:#ffb5cf; font-size:1.6rem; animation:orbitFloat 2.5s infinite ease-in-out; }
+        .thank-you-orbit span:nth-child(2) { color:#ff758c; filter:drop-shadow(0 0 15px #ff758c); }
+        @keyframes orbitFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        .thank-title { margin-top:.7rem; }
+        .ending-heart-small { margin:1.6rem auto 0; font-size:3.3rem; color:#ff758c; filter:drop-shadow(0 0 20px rgba(255,117,140,.8)); animation:endingHeartBeat 1.2s infinite; }
+        @keyframes endingHeartBeat { 0%,100%{transform:scale(1)} 12%{transform:scale(1.12)} 24%{transform:scale(.98)} 36%{transform:scale(1.1)} 52%{transform:scale(1)} }
+        .love-heart-stage { display:flex; justify-content:center; align-items:center; min-height:360px; }
+        .love-heart-stage { display:flex; justify-content:center; align-items:center; min-height:380px; padding:2rem 0; }
+        .love-heart { position:relative; width:300px; height:260px; background:linear-gradient(145deg,#ffd1df 0%,#ff759c 38%,#d32662 72%,#7e123f 100%); clip-path:polygon(50% 100%, 7% 62%, 3% 40%, 8% 22%, 22% 12%, 38% 12%, 50% 25%, 62% 12%, 78% 12%, 92% 22%, 97% 40%, 93% 62%); filter:drop-shadow(0 0 18px rgba(255,117,140,.9)) drop-shadow(0 0 55px rgba(255,117,140,.5)); animation:bigHeartBeat 1.25s infinite ease-in-out; display:flex; align-items:center; justify-content:center; padding:0 28px; }
+        .love-heart::after { content:""; position:absolute; inset:10% 18%; background:radial-gradient(circle,rgba(255,255,255,.25),transparent 55%); filter:blur(14px); animation:heartShine 2.2s infinite ease-in-out; pointer-events:none; }
+        @keyframes bigHeartBeat { 0%,100%{transform:scale(1)} 12%{transform:scale(1.07)} 24%{transform:scale(.98)} 38%{transform:scale(1.06)} 55%{transform:scale(1)} }
+        @keyframes heartShine { 0%,100%{opacity:.25;transform:scale(.9)} 50%{opacity:.75;transform:scale(1.08)} }
+        .love-heart span { position:relative; z-index:3; display:block; width:100%; text-align:center; color:#fff; font-family:var(--font-heading); font-size:clamp(1rem,2.5vw,1.35rem); font-weight:700; letter-spacing:.4px; line-height:1.25; text-shadow:0 2px 18px rgba(90,0,30,.7),0 0 12px rgba(255,255,255,.65); white-space:nowrap; }
+        .love-caption { font-family:var(--font-sub); font-style:italic; font-size:1.2rem; color:var(--text-muted); margin-top:.3rem; }
+
+        @media (max-width: 700px) {
+            .site-section { padding:1rem; }
+            .glass-card { padding:1.5rem; }
+            .memory-frame, .birthday-video-frame { min-height:300px; height:300px; }
+            .carousel-slide img, .carousel-slide video, .birthday-video-frame video { height:230px; }
+            .love-heart { transform:scale(.72); margin:-30px 0; }
+            .love-heart span { font-size:1rem; }
+            .love-heart span { font-size:1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION 1 -->
+    <section id="section-intro" class="site-section active">
+        <canvas id="galaxy-canvas"></canvas>
+        <div class="intro-content glass-card">
+            <h1 class="glow-text intro-title">Welcome to 21, mry phipryyy 💜</h1>
+            <p class="intro-subtitle">A little surprise created just for you.</p>
+            <button id="start-btn" class="luxury-btn">
+                <span>Start ✨</span>
+                <div class="btn-glow"></div>
+            </button>
+        </div>
+    </section>
+
+    <!-- SECTION 2: COUNTDOWN + BIRTHDAY FIREWORKS -->
+    <section id="section-countdown" class="site-section">
+        <div id="countdown-screen" class="countdown-display-wrapper">
+            <div id="countdown-number" class="countdown-num">3</div>
+        </div>
+
+        <div id="birthday-animation" class="birthday-animation">
+            <canvas id="birthday-stars"></canvas>
+            <canvas id="birthday-fireworks"></canvas>
+            <div id="birthday-hearts"></div>
+
+            <div class="birthday-title-wrap">
+                <h1 id="birthday-title">Happy Birthday, Kainat <span class="birthday-heart">♥</span></h1>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: QUIZ -->
+    <section id="section-quiz" class="site-section">
+        <div class="quiz-container glass-card">
+
+            <!-- Special one-question quiz -->
+            <div id="special-quiz" class="special-quiz">
+                <div class="special-quiz-sparkle">✦</div>
+                <h2 class="glow-text special-quiz-title">Ek important sawal 👀</h2>
+                <p class="special-quiz-question">Kainat bht bari daramy baz hai? 😂</p>
+                <p class="special-quiz-hint">NO ka jawab dena itna easy nahi hoga 😌</p>
+                <div class="special-quiz-options">
+                    <button id="special-yes" class="special-option yes-option">YES 💜</button>
+                    <button id="special-no" class="special-option no-option">NO 😌</button>
+                </div>
+            </div>
+
+            <!-- Surprise image after YES -->
+            <div id="special-reveal" class="special-reveal hidden">
+                <div class="reveal-kicker">I knew it! ✨</div>
+                <div class="reveal-image-wrap">
+                    <img src="assets/images/daramy.gif" alt="Cute bestie hug" class="reveal-image">
+                </div>
+                <h2 class="glow-text reveal-title">I knew it! 💜😂</h2>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section id="section-cake" class="site-section">
+        <div class="cake-wrapper glass-card text-center">
+            <h2 class="glow-text">Make a wish...</h2>
+            <div class="cake-scene">
+                <div class="luxury-cake">
+                    <div class="candle" id="interactive-candle">
+                        <div class="flame" id="candle-flame"></div>
+                        <div class="smoke" id="candle-smoke"></div>
+                    </div>
+                    <div class="cake-tier tier-top"></div>
+                    <div class="cake-tier tier-middle"></div>
+                    <div class="cake-tier tier-bottom"></div>
+                </div>
+            </div>
+            <p class="instruction-hint" id="cake-instruction">Tap the candle to blow it out 🕯️💨</p>
+            <button id="cake-next-btn" class="luxury-btn mt-4 hidden" data-next="section-wishes"><span>See Your Wishes ✨</span></button>
+        </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section id="section-wishes" class="site-section">
+        <div class="wishes-universe">
+            <h2 class="glow-text text-center mb-4">Your Special Wishes 💜</h2>
+            <div id="wishes-container" class="floating-wishes-grid"></div>
+            <div class="text-center mt-4">
+                <button class="next-btn luxury-btn" data-next="section-memories"><span>Explore Memories ✨</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: MEMORIES -->
+    <section id="section-memories" class="site-section">
+        <div class="gallery-container glass-card memory-gallery-card">
+            <div class="section-kicker">A LITTLE PIECE OF US ✦</div>
+            <h2 class="glow-text text-center">Our Little Universe of Memories ✨</h2>
+            <div class="carousel-viewport memory-frame">
+                <div id="carousel-track" class="carousel-track"></div>
+            </div>
+            <div class="carousel-controls">
+                <button id="prev-memory" class="glass-btn">&larr; Prev</button>
+                <span id="memory-counter" class="memory-counter-text">1 / 3</span>
+                <button id="next-memory" class="glass-btn">Next &rarr;</button>
+            </div>
+            <div class="text-center mt-4">
+                <button class="next-btn luxury-btn" data-next="section-letter"><span>Open My Letter 💌</span></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: LETTER -->
+    <section id="section-letter" class="site-section">
+        <div class="letter-container glass-card animated-letter-card">
+            <div class="letter-sparkle">✦ ✧ ✦</div>
+            <h2 class="letter-title glow-text">A Letter For You 💌</h2>
+            <p class="letter-intro">Something special is waiting inside...</p>
+
+            <div id="envelope-stage" class="envelope-stage">
+                <div id="envelope" class="envelope">
+                    <div class="envelope-body"></div>
+                    <div class="envelope-flap"></div>
+                    <div class="envelope-seal">♥</div>
+                </div>
+                <button id="open-letter-btn" class="next-btn luxury-btn open-letter-btn"><span>Open My Letter 💌</span></button>
+            </div>
+
+            <div id="letter-reveal" class="letter-reveal">
+                <div class="letter-paper beautiful-letter-paper">
+                    <div class="paper-glow"></div>
+                    <div id="typed-message" class="typed-message-content"></div>
+                    <div class="letter-signature">Always yours in friendship,<br><span>💜 Your Bestie</span></div>
+                </div>
+                <div class="text-center mt-4">
+                    <button id="letter-done-btn" class="next-btn luxury-btn hidden" data-next="section-video"><span>Next ✨</span></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: PHOTO FRAME GALLERY -->
+    <section id="section-video" class="site-section">
+        <div class="photo-wall">
+            <h2 class="photo-wall-heading">You Look So Beautiful! ✨</h2>
+
+            <div class="photo-wall-grid" aria-label="Birthday photo frames">
+                <div class="photo-wall-slot" style="--tilt:-2deg">
+                    <div class="photo-frame">
+                        <span class="frame-sparkle s1"></span><span class="frame-sparkle s2"></span>
+                        <div class="photo-frame-inner">
+                            <img src="assets/memories/frame1.jpg" alt="Memory photo 1" onload="this.parentElement.parentElement.classList.add('has-photo')">
+                            <div class="photo-placeholder"><strong>Photo 1 💗</strong><span>assets/memories/frame1.jpg</span></div>
+                        </div>
+                    </div>
+                    <span class="frame-string-horizontal"></span>
+                    <span class="frame-string-vertical"></span>
+                </div>
+
+                <div class="photo-wall-slot" style="--tilt:2deg">
+                    <div class="photo-frame">
+                        <span class="frame-sparkle s1"></span><span class="frame-sparkle s2"></span>
+                        <div class="photo-frame-inner">
+                            <img src="assets/memories/frame2.jpg" alt="Memory photo 2" onload="this.parentElement.parentElement.classList.add('has-photo')">
+                            <div class="photo-placeholder"><strong>Photo 2 🌸</strong><span>assets/memories/frame2.jpg</span></div>
+                        </div>
+                    </div>
+                    <span class="frame-string-vertical"></span>
+                </div>
+
+                <div class="photo-wall-slot" style="--tilt:2deg">
+                    <div class="photo-frame">
+                        <span class="frame-sparkle s1"></span><span class="frame-sparkle s2"></span>
+                        <div class="photo-frame-inner">
+                            <img src="assets/memories/frame3.jpg" alt="Memory photo 3" onload="this.parentElement.parentElement.classList.add('has-photo')">
+                            <div class="photo-placeholder"><strong>Photo 3 ✨</strong><span>assets/memories/frame3.jpg</span></div>
+                        </div>
+                    </div>
+                    <span class="frame-string-horizontal"></span>
+                    <span class="frame-string-vertical"></span>
+                </div>
+
+                <div class="photo-wall-slot" style="--tilt:-2deg">
+                    <div class="photo-frame">
+                        <span class="frame-sparkle s1"></span><span class="frame-sparkle s2"></span>
+                        <div class="photo-frame-inner">
+                            <img src="assets/memories/frame4.jpg" alt="Memory photo 4" onload="this.parentElement.parentElement.classList.add('has-photo')">
+                            <div class="photo-placeholder"><strong>Photo 4 💕</strong><span>assets/memories/frame4.jpg</span></div>
+                        </div>
+                    </div>
+                    <span class="frame-string-vertical"></span>
+                </div>
+
+                <div class="photo-wall-slot" style="--tilt:-2deg">
+                    <div class="photo-frame">
+                        <span class="frame-sparkle s1"></span><span class="frame-sparkle s2"></span>
+                        <div class="photo-frame-inner">
+                            <img src="assets/memories/frame5.jpg" alt="Memory photo 5" onload="this.parentElement.parentElement.classList.add('has-photo')">
+                            <div class="photo-placeholder"><strong>Photo 5 🩷</strong><span>assets/memories/frame5.jpg</span></div>
+                        </div>
+                    </div>
+                    <span class="frame-string-horizontal"></span>
+                </div>
+
+                <div class="photo-wall-slot" style="--tilt:2deg">
+                    <div class="photo-frame">
+                        <span class="frame-sparkle s1"></span><span class="frame-sparkle s2"></span>
+                        <div class="photo-frame-inner">
+                            <img src="assets/memories/frame6.jpg" alt="Memory photo 6" onload="this.parentElement.parentElement.classList.add('has-photo')">
+                            <div class="photo-placeholder"><strong>Photo 6 💜</strong><span>assets/memories/frame6.jpg</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="photo-wall-note">Six little frames for six beautiful memories. ✨</p>
+            <button class="next-btn luxury-btn photo-wall-next" data-next="section-ending"><span>Continue ✨</span></button>
+        </div>
+    </section>
+
+    <!-- SECTION 11: ENDING -->
+    <section id="section-ending" class="site-section">
+        <div class="ending-wrapper text-center">
+            <div id="ending-sequence-1" class="ending-text-node">
+                <div class="thank-you-orbit">
+                    <span>✦</span><span>♥</span><span>✦</span>
+                </div>
+                <h2 class="glow-text mega-title thank-title">Thank You For Everything</h2>
+                <p class="final-subtext">For every laugh, every memory, and every little moment. 💜</p>
+                <div class="ending-heart-small">♥</div>
+            </div>
+            <div id="ending-sequence-2" class="ending-text-node hidden love-final">
+                <div class="love-heart-stage">
+                    <div class="love-heart">
+                        <span>Love You More ❤️</span>
+                    </div>
+                </div>
+                <p class="love-caption">Happy 21st Birthday, Kainat ✨</p>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
